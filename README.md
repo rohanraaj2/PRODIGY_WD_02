@@ -2,6 +2,10 @@
 
 A feature-rich, responsive stopwatch web application built with HTML, CSS, and JavaScript. This application provides precise time measurement with lap tracking functionality and an intuitive user interface.
 
+## Live Demo
+
+View the site: https://rohanraaj2.github.io/PRODIGY_WD_02/
+
 ## Features
 
 ### Core Functionality
@@ -129,6 +133,10 @@ Customize button appearance in the `.btn` class in `style.css`.
 - [ ] Customizable themes
 - [ ] Split time calculations
 - [ ] Statistics and analytics
+
+## Analytics
+
+This site includes Google Analytics for traffic tracking. No personal data is collected.
 
 ## License
 
