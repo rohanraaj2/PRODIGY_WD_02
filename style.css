@@ -13,6 +13,11 @@ body {
     justify-content: center;
     align-items: center;
     padding: 20px;
+    transition: background 0.3s;
+}
+
+.dark-mode {
+    background: linear-gradient(135deg, #232526 0%, #414345 100%);
 }
 
 .container {
@@ -28,6 +33,12 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
     text-align: center;
     backdrop-filter: blur(10px);
+    transition: background 0.3s, color 0.3s;
+}
+
+.dark-mode .stopwatch {
+    background: rgba(34, 40, 49, 0.98);
+    color: #f1f1f1;
 }
 
 .stopwatch h1 {
@@ -36,6 +47,11 @@ body {
     font-size: 2.5rem;
     font-weight: 300;
     letter-spacing: 2px;
+    display: inline-block;
+}
+
+.dark-mode .stopwatch h1 {
+    color: #f1f1f1;
 }
 
 /* Time Display */
@@ -50,6 +66,36 @@ body {
     border-radius: 15px;
     border: 2px solid rgba(52, 73, 94, 0.2);
     letter-spacing: 3px;
+    transition: background 0.3s, color 0.3s;
+}
+
+.dark-mode .time-display {
+    background: rgba(52, 73, 94, 0.4);
+    color: #f1f1f1;
+    border-color: rgba(52, 73, 94, 0.5);
+}
+.header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.mode-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.leaderboard-section {
+    margin-top: 30px;
+    background: rgba(236, 240, 241, 0.8);
+    border-radius: 15px;
+    padding: 20px;
+}
+.dark-mode .leaderboard-section {
+    background: rgba(52, 73, 94, 0.4);
+    color: #f1f1f1;
 }
 
 .time-display span {

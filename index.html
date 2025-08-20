@@ -19,23 +19,34 @@
 <body>
     <div class="container">
         <div class="stopwatch">
-            <h1>Stopwatch</h1>
-            
+            <div class="header-row">
+                <h1>Stopwatch</h1>
+                <button id="darkModeToggle" class="btn" title="Toggle Dark Mode">🌙</button>
+            </div>
+            <div class="mode-row">
+                <label for="modeSelect">Mode:</label>
+                <select id="modeSelect">
+                    <option value="stopwatch">Stopwatch</option>
+                    <option value="countdown">Countdown</option>
+                </select>
+                <input type="number" id="countdownInput" min="1" max="3599" placeholder="Seconds" style="display:none; width:100px; margin-left:10px;" />
+            </div>
             <!-- Time Display -->
             <div class="time-display">
                 <span id="minutes">00</span>:
                 <span id="seconds">00</span>:
                 <span id="milliseconds">00</span>
             </div>
-            
+            <!-- Animated Clock -->
+            <div id="svgClockContainer"></div>
             <!-- Control Buttons -->
             <div class="controls">
                 <button id="startBtn" class="btn start">Start</button>
                 <button id="pauseBtn" class="btn pause" disabled>Pause</button>
                 <button id="resetBtn" class="btn reset">Reset</button>
                 <button id="lapBtn" class="btn lap" disabled>Lap</button>
+                <button id="shareBtn" class="btn" title="Share Lap Times" style="display:none;">Share</button>
             </div>
-            
             <!-- Lap Times Section -->
             <div class="lap-section">
                 <h2>Lap Times</h2>
@@ -43,6 +54,11 @@
                     <p class="no-laps">No lap times recorded</p>
                 </div>
                 <button id="clearLapsBtn" class="btn clear-laps" style="display: none;">Clear All Laps</button>
+            </div>
+            <!-- Leaderboard Section -->
+            <div class="leaderboard-section" id="leaderboardSection" style="display:none;">
+                <h2>Leaderboard</h2>
+                <div id="leaderboardContainer"></div>
             </div>
         </div>
     </div>

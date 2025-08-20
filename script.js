@@ -202,10 +202,63 @@ class Stopwatch {
 // Initialize the stopwatch when the page loads
 document.addEventListener('DOMContentLoaded', () => {
     const stopwatch = new Stopwatch();
-    
-    // Make stopwatch globally accessible for debugging
     window.stopwatch = stopwatch;
-    
+
+    // Dark mode toggle
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+    // Load dark mode preference
+    if (localStorage.getItem('darkMode') === 'true') {
+        body.classList.add('dark-mode');
+        darkModeToggle.textContent = '☀️';
+    }
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        const isDark = body.classList.contains('dark-mode');
+        darkModeToggle.textContent = isDark ? '☀️' : '🌙';
+        localStorage.setItem('darkMode', isDark);
+    });
+
+    // Countdown mode logic
+    const modeSelect = document.getElementById('modeSelect');
+    const countdownInput = document.getElementById('countdownInput');
+    modeSelect.addEventListener('change', () => {
+        if (modeSelect.value === 'countdown') {
+            countdownInput.style.display = 'inline-block';
+            stopwatch.reset();
+        } else {
+            countdownInput.style.display = 'none';
+            stopwatch.reset();
+        }
+    });
+
+    // Animated SVG clock
+    function renderSVGClock(minutes, seconds, milliseconds) {
+        const totalSeconds = minutes * 60 + seconds + milliseconds / 100;
+        const percent = (totalSeconds % 60) / 60;
+        const radius = 40;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference * (1 - percent);
+        const svg = `
+            <svg width="100" height="100" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="40" stroke="#3498db" stroke-width="8" fill="none" opacity="0.2" />
+                <circle cx="50" cy="50" r="40" stroke="#27ae60" stroke-width="8" fill="none" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
+                <text x="50" y="55" text-anchor="middle" font-size="18" fill="#333">${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</text>
+            </svg>
+        `;
+        document.getElementById('svgClockContainer').innerHTML = svg;
+    }
+
+    // Hook into stopwatch display update
+    const origUpdateDisplay = stopwatch.updateDisplay.bind(stopwatch);
+    stopwatch.updateDisplay = function() {
+        origUpdateDisplay();
+        const m = parseInt(this.minutesElement.textContent);
+        const s = parseInt(this.secondsElement.textContent);
+        const ms = parseInt(this.millisecondsElement.textContent);
+        renderSVGClock(m, s, ms);
+    };
+
     // Add keyboard shortcuts information
     const keyboardShortcuts = document.createElement('div');
     keyboardShortcuts.innerHTML = `
@@ -216,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
             <span style="font-family: monospace;">L</span> - Lap (when running)
         </div>
     `;
-    
     document.querySelector('.stopwatch').appendChild(keyboardShortcuts);
 });
 
