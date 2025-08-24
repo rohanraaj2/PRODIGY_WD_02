@@ -297,6 +297,16 @@ body {
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s ease;
+    }
+    .dark-mode .lap-time {
+        background: #232526;
+    }
+    .dark-mode .lap-value {
+        color: #fafafa;
+    }
+    .dark-mode .lap-time .split {
+        color: #fafafa !important;
+    }
 }
 
 .lap-time:hover {
