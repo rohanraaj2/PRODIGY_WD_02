@@ -1,4 +1,6 @@
 class Stopwatch {
+    // Add a variable to track remaining countdown time
+    remainingCountdown = null;
     constructor() {
         // Time tracking variables
         this.startTime = 0;
@@ -57,7 +59,6 @@ class Stopwatch {
     
     start() {
         if (!this.isRunning) {
-            // Check for mode via buttons
             const countdownInput = document.getElementById('countdownInput');
             const stopwatchModeBtn = document.getElementById('stopwatchModeBtn');
             const countdownModeBtn = document.getElementById('countdownModeBtn');
@@ -66,15 +67,21 @@ class Stopwatch {
                 mode = 'countdown';
             }
             if (mode === 'countdown') {
-                let seconds = parseInt(countdownInput.value, 10);
-                if (isNaN(seconds) || seconds <= 0) {
-                    alert('Enter a valid countdown time in seconds.');
-                    return;
+                // If resuming from pause, use remainingCountdown
+                if (this.remainingCountdown !== null) {
+                    this.elapsedTime = this.remainingCountdown;
+                } else {
+                    let seconds = parseInt(countdownInput.value, 10);
+                    if (isNaN(seconds) || seconds <= 0) {
+                        alert('Enter a valid countdown time in seconds.');
+                        return;
+                    }
+                    this.elapsedTime = seconds * 1000;
                 }
-                this.elapsedTime = seconds * 1000;
                 this.startTime = Date.now();
                 this.timerInterval = setInterval(() => this.updateDisplay(), 10);
                 this.isRunning = true;
+                this.remainingCountdown = null;
             } else {
                 this.startTime = Date.now() - this.elapsedTime;
                 this.timerInterval = setInterval(() => this.updateDisplay(), 10);
@@ -93,14 +100,23 @@ class Stopwatch {
     
     pause() {
         if (this.isRunning) {
+            const stopwatchModeBtn = document.getElementById('stopwatchModeBtn');
+            const countdownModeBtn = document.getElementById('countdownModeBtn');
+            let mode = 'stopwatch';
+            if (countdownModeBtn && countdownModeBtn.classList.contains('active')) {
+                mode = 'countdown';
+            }
+            if (mode === 'countdown') {
+                // Store remaining time for resume
+                const now = Date.now();
+                this.remainingCountdown = this.elapsedTime - (now - this.startTime);
+            }
             clearInterval(this.timerInterval);
             this.isRunning = false;
-            
             // Update button states
             this.startBtn.disabled = false;
             this.pauseBtn.disabled = true;
             this.lapBtn.disabled = true;
-            
             // Update button text
             this.startBtn.textContent = 'Resume';
             this.pauseBtn.textContent = 'Paused';
@@ -116,6 +132,7 @@ class Stopwatch {
         this.isRunning = false;
         this.elapsedTime = 0;
         this.startTime = 0;
+        this.remainingCountdown = null;
         // Always reset display
         this.minutesElement.textContent = '00';
         this.secondsElement.textContent = '00';
@@ -204,9 +221,14 @@ class Stopwatch {
     recordLap() {
         if (this.isRunning) {
             this.lapCount++;
-            const modeSelect = document.getElementById('modeSelect');
+            const stopwatchModeBtn = document.getElementById('stopwatchModeBtn');
+            const countdownModeBtn = document.getElementById('countdownModeBtn');
+            let mode = 'stopwatch';
+            if (countdownModeBtn && countdownModeBtn.classList.contains('active')) {
+                mode = 'countdown';
+            }
             let lapTime, lapTimeString, split, splitString;
-            if (modeSelect && modeSelect.value === 'countdown') {
+            if (mode === 'countdown') {
                 // In countdown, lap is remaining time
                 const now = Date.now();
                 lapTime = Math.max(this.elapsedTime - (now - this.startTime), 0);
@@ -217,7 +239,8 @@ class Stopwatch {
                 } else {
                     split = 0;
                 }
-                const splitFormatted = this.formatTime(Math.abs(split));
+                // Split is previous remaining minus current remaining (time between laps)
+                const splitFormatted = this.formatTime(split);
                 splitString = `${splitFormatted.minutes}:${splitFormatted.seconds}:${splitFormatted.milliseconds}`;
             } else {
                 // Stopwatch mode
