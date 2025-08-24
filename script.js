@@ -57,10 +57,15 @@ class Stopwatch {
     
     start() {
         if (!this.isRunning) {
-            // Check for countdown mode
-            const modeSelect = document.getElementById('modeSelect');
+            // Check for mode via buttons
             const countdownInput = document.getElementById('countdownInput');
-            if (modeSelect && modeSelect.value === 'countdown') {
+            const stopwatchModeBtn = document.getElementById('stopwatchModeBtn');
+            const countdownModeBtn = document.getElementById('countdownModeBtn');
+            let mode = 'stopwatch';
+            if (countdownModeBtn && countdownModeBtn.classList.contains('active')) {
+                mode = 'countdown';
+            }
+            if (mode === 'countdown') {
                 let seconds = parseInt(countdownInput.value, 10);
                 if (isNaN(seconds) || seconds <= 0) {
                     alert('Enter a valid countdown time in seconds.');
@@ -142,9 +147,14 @@ class Stopwatch {
     }
     
     updateDisplay() {
-        const modeSelect = document.getElementById('modeSelect');
+        const stopwatchModeBtn = document.getElementById('stopwatchModeBtn');
+        const countdownModeBtn = document.getElementById('countdownModeBtn');
+        let mode = 'stopwatch';
+        if (countdownModeBtn && countdownModeBtn.classList.contains('active')) {
+            mode = 'countdown';
+        }
         if (this.isRunning) {
-            if (modeSelect && modeSelect.value === 'countdown') {
+            if (mode === 'countdown') {
                 // Countdown mode
                 const now = Date.now();
                 const remaining = this.elapsedTime - (now - this.startTime);
@@ -362,18 +372,25 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('darkMode', isDark);
     });
 
-    // Countdown mode logic
-    const modeSelect = document.getElementById('modeSelect');
+    // Mode switching logic
+    const stopwatchModeBtn = document.getElementById('stopwatchModeBtn');
+    const countdownModeBtn = document.getElementById('countdownModeBtn');
     const countdownInput = document.getElementById('countdownInput');
-    modeSelect.addEventListener('change', () => {
-        if (modeSelect.value === 'countdown') {
-            countdownInput.style.display = 'inline-block';
-            stopwatch.reset();
-        } else {
+    function setMode(mode) {
+        if (mode === 'stopwatch') {
+            stopwatchModeBtn.classList.add('active');
+            countdownModeBtn.classList.remove('active');
             countdownInput.style.display = 'none';
             stopwatch.reset();
+        } else {
+            stopwatchModeBtn.classList.remove('active');
+            countdownModeBtn.classList.add('active');
+            countdownInput.style.display = 'inline-block';
+            stopwatch.reset();
         }
-    });
+    }
+    stopwatchModeBtn.addEventListener('click', () => setMode('stopwatch'));
+    countdownModeBtn.addEventListener('click', () => setMode('countdown'));
 
     // Animated SVG clock
     function renderSVGClock(minutes, seconds, milliseconds) {
