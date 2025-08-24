@@ -39,11 +39,12 @@
         <div id="achievements" class="achievements" aria-label="Achievements" style="display:none;"></div>
         <!-- Import Lap Times -->
         <input type="file" id="importLapFile" accept=".csv" style="display:none;" />
-        <button id="importLapBtn" class="btn" style="position: absolute; top: 60px; right: 20px; z-index: 10;">Import Laps</button>
-        <!-- Screenshot Share Button -->
-        <button id="screenshotBtn" class="btn" style="position: absolute; top: 100px; right: 20px; z-index: 10;">📸 Share Screenshot</button>
-        <!-- Help Button -->
-        <button id="openHelpBtn" class="btn" style="position: absolute; top: 140px; right: 20px; z-index: 10;">❓ Help</button>
+        <div style="position: absolute; top: 20px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 16px; align-items: flex-end;">
+            <button id="openSettingsBtn" class="btn">⚙️</button>
+            <button id="importLapBtn" class="btn">Import Laps</button>
+            <button id="screenshotBtn" class="btn">📸 Share Screenshot</button>
+            <button id="openHelpBtn" class="btn">❓ Help</button>
+        </div>
         <!-- Settings Panel -->
         <div id="settingsPanel" class="settings-panel" aria-label="Settings" tabindex="0" style="display:none;">
             <h2>Settings</h2>
