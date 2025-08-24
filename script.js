@@ -245,7 +245,8 @@ class Stopwatch {
         this.lapCount = 0;
         this.lapTimes = [];
         this.splitTimes = [];
-        this.saveLapsToStorage();
+        // Save session laps to a separate key, but keep historical bests
+        localStorage.setItem('stopwatchSessionLaps', JSON.stringify([]));
         this.clearLapsBtn.style.display = 'none';
         this.shareBtn.style.display = 'none';
     }
@@ -269,15 +270,31 @@ class Stopwatch {
         return lapTimes.reverse(); // Return in chronological order
     }
 
-    // Save laps to localStorage
+    // Save laps to localStorage (session and historical bests)
     saveLapsToStorage() {
         const laps = this.exportLapTimes();
-        localStorage.setItem('stopwatchLaps', JSON.stringify(laps));
+        // Save session laps
+        localStorage.setItem('stopwatchSessionLaps', JSON.stringify(laps));
+        // Update historical bests if needed
+        let bests = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        laps.forEach(lap => {
+            // If this lap is better than any previous, add it
+            if (!bests.some(b => b.time === lap.time)) {
+                bests.push(lap);
+            }
+        });
+        // Sort and keep top 20
+        bests = bests.sort((a, b) => {
+            const ta = parseLapTime(a.time);
+            const tb = parseLapTime(b.time);
+            return ta - tb;
+        }).slice(0, 20);
+        localStorage.setItem('stopwatchLaps', JSON.stringify(bests));
     }
 
-    // Load laps from localStorage
+    // Load laps from localStorage (session only)
     loadLapsFromStorage() {
-        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        const laps = JSON.parse(localStorage.getItem('stopwatchSessionLaps') || '[]');
         if (laps.length > 0) {
             this.lapCount = 0;
             laps.forEach(lap => {
@@ -350,7 +367,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return m * 60000 + s * 1000 + ms * 10;
     }
     function updateLeaderboard() {
-        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        let laps = [];
+        // For leaderboard, use historical bests except for mostLaps
+        if (leaderboardType.value === 'mostLaps') {
+            laps = JSON.parse(localStorage.getItem('stopwatchSessionLaps') || '[]');
+        } else {
+            laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        }
         if (laps.length === 0) {
             leaderboardSection.style.display = 'none';
             return;
