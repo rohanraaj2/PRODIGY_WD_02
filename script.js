@@ -194,22 +194,38 @@ class Stopwatch {
     recordLap() {
         if (this.isRunning) {
             this.lapCount++;
-            const lapTime = this.elapsedTime;
-            const formattedTime = this.formatTime(lapTime);
-            const lapTimeString = `${formattedTime.minutes}:${formattedTime.seconds}:${formattedTime.milliseconds}`;
-            let split = lapTime;
-            if (this.lapTimes.length > 0) {
-                split = lapTime - this.lapTimes[this.lapTimes.length - 1];
+            const modeSelect = document.getElementById('modeSelect');
+            let lapTime, lapTimeString, split, splitString;
+            if (modeSelect && modeSelect.value === 'countdown') {
+                // In countdown, lap is remaining time
+                const now = Date.now();
+                lapTime = Math.max(this.elapsedTime - (now - this.startTime), 0);
+                const formattedTime = this.formatTime(lapTime);
+                lapTimeString = `${formattedTime.minutes}:${formattedTime.seconds}:${formattedTime.milliseconds}`;
+                if (this.lapTimes.length > 0) {
+                    split = this.lapTimes[this.lapTimes.length - 1] - lapTime;
+                } else {
+                    split = 0;
+                }
+                const splitFormatted = this.formatTime(Math.abs(split));
+                splitString = `${splitFormatted.minutes}:${splitFormatted.seconds}:${splitFormatted.milliseconds}`;
+            } else {
+                // Stopwatch mode
+                lapTime = this.elapsedTime;
+                const formattedTime = this.formatTime(lapTime);
+                lapTimeString = `${formattedTime.minutes}:${formattedTime.seconds}:${formattedTime.milliseconds}`;
+                split = lapTime;
+                if (this.lapTimes.length > 0) {
+                    split = lapTime - this.lapTimes[this.lapTimes.length - 1];
+                }
+                const splitFormatted = this.formatTime(split);
+                splitString = `${splitFormatted.minutes}:${splitFormatted.seconds}:${splitFormatted.milliseconds}`;
             }
-            const splitFormatted = this.formatTime(split);
-            const splitString = `${splitFormatted.minutes}:${splitFormatted.seconds}:${splitFormatted.milliseconds}`;
             this.lapTimes.push(lapTime);
             this.splitTimes.push(split);
-            
             this.addLapToDisplay(this.lapCount, lapTimeString, splitString);
             this.saveLapsToStorage();
             playSound('lap');
-            
             // Show clear laps button if not visible
             if (this.clearLapsBtn.style.display === 'none') {
                 this.clearLapsBtn.style.display = 'block';
