@@ -422,11 +422,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const radius = 40;
         const circumference = 2 * Math.PI * radius;
         const offset = circumference * (1 - percent);
+        // Detect dark mode
+        const isDark = document.body.classList.contains('dark-mode');
+        const textColor = isDark ? '#fafafa' : '#333';
         const svg = `
             <svg width="100" height="100" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" stroke="#3498db" stroke-width="8" fill="none" opacity="0.2" />
                 <circle cx="50" cy="50" r="40" stroke="#27ae60" stroke-width="8" fill="none" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" />
-                <text x="50" y="55" text-anchor="middle" font-size="18" fill="#333">${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</text>
+                <text x="50" y="55" text-anchor="middle" font-size="18" fill="${textColor}">${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}</text>
             </svg>
         `;
         document.getElementById('svgClockContainer').innerHTML = svg;
