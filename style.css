@@ -1,3 +1,40 @@
+.customization-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.customization-row label {
+    font-size: 1rem;
+    color: #2c3e50;
+}
+.dark-mode .customization-row label {
+    color: #f1f1f1;
+}
+.leaderboard-section {
+    margin-top: 30px;
+    background: rgba(236, 240, 241, 0.8);
+    border-radius: 15px;
+    padding: 20px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.leaderboard-entry {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background: #fff;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+.dark-mode .leaderboard-entry {
+    background: #232526;
+    color: #f1f1f1;
+}
 /* Reset and Base Styles */
 * {
     margin: 0;

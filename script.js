@@ -6,6 +6,8 @@ class Stopwatch {
         this.timerInterval = null;
         this.isRunning = false;
         this.lapCount = 0;
+        this.lapTimes = [];
+        this.splitTimes = [];
         
         // DOM elements
         this.minutesElement = document.getElementById('minutes');
@@ -17,11 +19,13 @@ class Stopwatch {
         this.resetBtn = document.getElementById('resetBtn');
         this.lapBtn = document.getElementById('lapBtn');
         this.clearLapsBtn = document.getElementById('clearLapsBtn');
+        this.shareBtn = document.getElementById('shareBtn');
         
         this.lapContainer = document.getElementById('lapContainer');
         
         // Initialize event listeners
         this.initEventListeners();
+        this.loadLapsFromStorage();
     }
     
     initEventListeners() {
@@ -30,6 +34,7 @@ class Stopwatch {
         this.resetBtn.addEventListener('click', () => this.reset());
         this.lapBtn.addEventListener('click', () => this.recordLap());
         this.clearLapsBtn.addEventListener('click', () => this.clearLaps());
+        this.shareBtn.addEventListener('click', () => this.shareLaps());
         
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
@@ -52,18 +57,32 @@ class Stopwatch {
     
     start() {
         if (!this.isRunning) {
-            this.startTime = Date.now() - this.elapsedTime;
-            this.timerInterval = setInterval(() => this.updateDisplay(), 10);
-            this.isRunning = true;
-            
+            // Check for countdown mode
+            const modeSelect = document.getElementById('modeSelect');
+            const countdownInput = document.getElementById('countdownInput');
+            if (modeSelect && modeSelect.value === 'countdown') {
+                let seconds = parseInt(countdownInput.value, 10);
+                if (isNaN(seconds) || seconds <= 0) {
+                    alert('Enter a valid countdown time in seconds.');
+                    return;
+                }
+                this.elapsedTime = seconds * 1000;
+                this.startTime = Date.now();
+                this.timerInterval = setInterval(() => this.updateDisplay(), 10);
+                this.isRunning = true;
+            } else {
+                this.startTime = Date.now() - this.elapsedTime;
+                this.timerInterval = setInterval(() => this.updateDisplay(), 10);
+                this.isRunning = true;
+            }
             // Update button states
             this.startBtn.disabled = true;
             this.pauseBtn.disabled = false;
             this.lapBtn.disabled = false;
-            
             // Update button text
             this.startBtn.textContent = 'Running...';
             this.pauseBtn.textContent = 'Pause';
+            playSound('start');
         }
     }
     
@@ -80,40 +99,84 @@ class Stopwatch {
             // Update button text
             this.startBtn.textContent = 'Resume';
             this.pauseBtn.textContent = 'Paused';
+            playSound('pause');
         }
     }
     
     reset() {
-        clearInterval(this.timerInterval);
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
         this.isRunning = false;
         this.elapsedTime = 0;
         this.startTime = 0;
-        
-        // Reset display
-        this.updateDisplay();
-        
+        // Always reset display
+        this.minutesElement.textContent = '00';
+        this.secondsElement.textContent = '00';
+        this.millisecondsElement.textContent = '00';
+        // Always clear countdown input
+        const countdownInput = document.getElementById('countdownInput');
+        if (countdownInput) countdownInput.value = '';
         // Update button states
         this.startBtn.disabled = false;
         this.pauseBtn.disabled = true;
         this.lapBtn.disabled = true;
-        
         // Update button text
         this.startBtn.textContent = 'Start';
         this.pauseBtn.textContent = 'Pause';
-        
         // Clear all laps
         this.clearLaps();
+        // Force analogue clock SVG to reset
+        const svgClockContainer = document.getElementById('svgClockContainer');
+        if (svgClockContainer) {
+            svgClockContainer.innerHTML = `
+                <svg width="100" height="100" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="#3498db" stroke-width="8" fill="none" opacity="0.2" />
+                    <circle cx="50" cy="50" r="40" stroke="#27ae60" stroke-width="8" fill="none" stroke-dasharray="${2 * Math.PI * 40}" stroke-dashoffset="${2 * Math.PI * 40}" />
+                    <text x="50" y="55" text-anchor="middle" font-size="18" fill="#333">00:00</text>
+                </svg>
+            `;
+        }
+        playSound('reset');
     }
     
     updateDisplay() {
+        const modeSelect = document.getElementById('modeSelect');
         if (this.isRunning) {
-            this.elapsedTime = Date.now() - this.startTime;
+            if (modeSelect && modeSelect.value === 'countdown') {
+                // Countdown mode
+                const now = Date.now();
+                const remaining = this.elapsedTime - (now - this.startTime);
+                if (remaining <= 0) {
+                    clearInterval(this.timerInterval);
+                    this.isRunning = false;
+                    this.elapsedTime = 0;
+                    this.minutesElement.textContent = '00';
+                    this.secondsElement.textContent = '00';
+                    this.millisecondsElement.textContent = '00';
+                    this.startBtn.disabled = false;
+                    this.pauseBtn.disabled = true;
+                    this.lapBtn.disabled = true;
+                    this.startBtn.textContent = 'Start';
+                    this.pauseBtn.textContent = 'Pause';
+                    playSound('reset');
+                    return;
+                } else {
+                    const time = this.formatTime(remaining);
+                    this.minutesElement.textContent = time.minutes;
+                    this.secondsElement.textContent = time.seconds;
+                    this.millisecondsElement.textContent = time.milliseconds;
+                }
+            } else {
+                // Stopwatch mode
+                this.elapsedTime = Date.now() - this.startTime;
+                const time = this.formatTime(this.elapsedTime);
+                this.minutesElement.textContent = time.minutes;
+                this.secondsElement.textContent = time.seconds;
+                this.millisecondsElement.textContent = time.milliseconds;
+            }
         }
-        
-        const time = this.formatTime(this.elapsedTime);
-        this.minutesElement.textContent = time.minutes;
-        this.secondsElement.textContent = time.seconds;
-        this.millisecondsElement.textContent = time.milliseconds;
     }
     
     formatTime(totalMilliseconds) {
@@ -134,48 +197,57 @@ class Stopwatch {
             const lapTime = this.elapsedTime;
             const formattedTime = this.formatTime(lapTime);
             const lapTimeString = `${formattedTime.minutes}:${formattedTime.seconds}:${formattedTime.milliseconds}`;
+            let split = lapTime;
+            if (this.lapTimes.length > 0) {
+                split = lapTime - this.lapTimes[this.lapTimes.length - 1];
+            }
+            const splitFormatted = this.formatTime(split);
+            const splitString = `${splitFormatted.minutes}:${splitFormatted.seconds}:${splitFormatted.milliseconds}`;
+            this.lapTimes.push(lapTime);
+            this.splitTimes.push(split);
             
-            this.addLapToDisplay(this.lapCount, lapTimeString);
+            this.addLapToDisplay(this.lapCount, lapTimeString, splitString);
+            this.saveLapsToStorage();
+            playSound('lap');
             
             // Show clear laps button if not visible
             if (this.clearLapsBtn.style.display === 'none') {
                 this.clearLapsBtn.style.display = 'block';
             }
+            this.shareBtn.style.display = 'inline-block';
         }
     }
     
-    addLapToDisplay(lapNumber, timeString) {
+    addLapToDisplay(lapNumber, timeString, splitString) {
         // Remove "no laps" message if it exists
         const noLapsMessage = this.lapContainer.querySelector('.no-laps');
         if (noLapsMessage) {
             noLapsMessage.remove();
         }
-        
         // Create lap element
         const lapElement = document.createElement('div');
         lapElement.className = 'lap-time new';
-        
         lapElement.innerHTML = `
             <span class="lap-number">Lap ${lapNumber}</span>
             <span class="lap-value">${timeString}</span>
+            <span class="split-value" style="color:#888; font-size:0.9em; margin-left:10px;">Split: ${splitString}</span>
         `;
-        
         // Insert at the top of the container
         this.lapContainer.insertBefore(lapElement, this.lapContainer.firstChild);
-        
-        // Remove the 'new' class after animation
         setTimeout(() => {
             lapElement.classList.remove('new');
         }, 300);
-        
-        // Auto-scroll to top to show the latest lap
         this.lapContainer.scrollTop = 0;
     }
     
     clearLaps() {
         this.lapContainer.innerHTML = '<p class="no-laps">No lap times recorded</p>';
         this.lapCount = 0;
+        this.lapTimes = [];
+        this.splitTimes = [];
+        this.saveLapsToStorage();
         this.clearLapsBtn.style.display = 'none';
+        this.shareBtn.style.display = 'none';
     }
     
     // Utility method to get current elapsed time in a formatted string
@@ -188,14 +260,53 @@ class Stopwatch {
     exportLapTimes() {
         const lapTimes = [];
         const lapElements = this.lapContainer.querySelectorAll('.lap-time');
-        
         lapElements.forEach(lapElement => {
             const lapNumber = lapElement.querySelector('.lap-number').textContent;
             const lapValue = lapElement.querySelector('.lap-value').textContent;
-            lapTimes.push({ lap: lapNumber, time: lapValue });
+            const splitValue = lapElement.querySelector('.split-value').textContent;
+            lapTimes.push({ lap: lapNumber, time: lapValue, split: splitValue });
         });
-        
         return lapTimes.reverse(); // Return in chronological order
+    }
+
+    // Save laps to localStorage
+    saveLapsToStorage() {
+        const laps = this.exportLapTimes();
+        localStorage.setItem('stopwatchLaps', JSON.stringify(laps));
+    }
+
+    // Load laps from localStorage
+    loadLapsFromStorage() {
+        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        if (laps.length > 0) {
+            this.lapCount = 0;
+            laps.forEach(lap => {
+                this.lapCount++;
+                this.addLapToDisplay(this.lapCount, lap.time, lap.split.replace('Split: ',''));
+            });
+            this.clearLapsBtn.style.display = 'block';
+            this.shareBtn.style.display = 'inline-block';
+        }
+    }
+
+    // Share lap times (clipboard)
+    shareLaps() {
+        const laps = this.exportLapTimes();
+        if (laps.length === 0) {
+            alert('No lap times to share');
+            return;
+        }
+        let text = 'Lap Number,Time,Split\n';
+        laps.forEach(lap => {
+            text += `${lap.lap},${lap.time},${lap.split}\n`;
+        });
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Lap times copied to clipboard!');
+            });
+        } else {
+            alert('Clipboard API not supported.');
+        }
     }
 }
 
@@ -203,6 +314,111 @@ class Stopwatch {
 document.addEventListener('DOMContentLoaded', () => {
     const stopwatch = new Stopwatch();
     window.stopwatch = stopwatch;
+
+
+    // Leaderboard/history
+    const leaderboardSection = document.getElementById('leaderboardSection');
+    const leaderboardContainer = document.getElementById('leaderboardContainer');
+    const leaderboardType = document.getElementById('leaderboardType');
+
+    function getBestLaps(laps) {
+        return [...laps].sort((a, b) => {
+            const ta = parseLapTime(a.time);
+            const tb = parseLapTime(b.time);
+            return ta - tb;
+        }).slice(0, 10);
+    }
+    function getFastestSplits(laps) {
+        return [...laps].sort((a, b) => {
+            const sa = parseLapTime(a.split.replace('Split: ',''));
+            const sb = parseLapTime(b.split.replace('Split: ',''));
+            return sa - sb;
+        }).slice(0, 10);
+    }
+    function getMostLaps(laps) {
+        return [{ count: laps.length }];
+    }
+    function getHistoricalBests() {
+        // For demo: just show best lap from localStorage
+        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        if (laps.length === 0) return [];
+        return getBestLaps(laps).slice(0, 1);
+    }
+    function parseLapTime(str) {
+        // "mm:ss:ms"
+        const [m, s, ms] = str.split(':').map(Number);
+        return m * 60000 + s * 1000 + ms * 10;
+    }
+    function updateLeaderboard() {
+        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
+        if (laps.length === 0) {
+            leaderboardSection.style.display = 'none';
+            return;
+        }
+        leaderboardSection.style.display = 'block';
+        leaderboardContainer.innerHTML = '';
+        let entries = [];
+        switch (leaderboardType.value) {
+            case 'bestLaps':
+                entries = getBestLaps(laps);
+                entries.forEach((lap, idx) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'leaderboard-entry';
+                    entry.innerHTML = `<span>#${idx + 1}</span> <span>${lap.time}</span> <span>${lap.split}</span>`;
+                    leaderboardContainer.appendChild(entry);
+                });
+                break;
+            case 'fastestSplits':
+                entries = getFastestSplits(laps);
+                entries.forEach((lap, idx) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'leaderboard-entry';
+                    entry.innerHTML = `<span>#${idx + 1}</span> <span>${lap.split}</span> <span>${lap.time}</span>`;
+                    leaderboardContainer.appendChild(entry);
+                });
+                break;
+            case 'mostLaps':
+                entries = getMostLaps(laps);
+                entries.forEach(entryObj => {
+                    const entry = document.createElement('div');
+                    entry.className = 'leaderboard-entry';
+                    entry.innerHTML = `<span>Total Laps:</span> <span>${entryObj.count}</span>`;
+                    leaderboardContainer.appendChild(entry);
+                });
+                break;
+            case 'historicalBests':
+                entries = getHistoricalBests();
+                entries.forEach((lap, idx) => {
+                    const entry = document.createElement('div');
+                    entry.className = 'leaderboard-entry';
+                    entry.innerHTML = `<span>Best Lap:</span> <span>${lap.time}</span> <span>${lap.split}</span>`;
+                    leaderboardContainer.appendChild(entry);
+                });
+                break;
+        }
+    }
+    updateLeaderboard();
+    leaderboardType.addEventListener('change', updateLeaderboard);
+    // Update leaderboard on lap changes
+    const origSaveLaps = stopwatch.saveLapsToStorage.bind(stopwatch);
+    stopwatch.saveLapsToStorage = function() {
+        origSaveLaps();
+        updateLeaderboard();
+    };
+
+    // Accessibility: Focus management
+    document.querySelectorAll('button, select, input').forEach(el => {
+        el.setAttribute('tabindex', '0');
+    });
+
+    // Register service worker for PWA
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js').then(function(reg) {
+            // Service worker registered
+        }).catch(function(err) {
+            // Registration failed
+        });
+    }
 
     // Dark mode toggle
     const darkModeToggle = document.getElementById('darkModeToggle');
@@ -280,12 +496,10 @@ function downloadLapTimes() {
             alert('No lap times to download');
             return;
         }
-        
-        let csvContent = "Lap Number,Time\n";
+        let csvContent = "Lap Number,Time,Split\n";
         lapTimes.forEach(lap => {
-            csvContent += `"${lap.lap}","${lap.time}"\n`;
+            csvContent += `"${lap.lap}","${lap.time}","${lap.split}"\n`;
         });
-        
         const blob = new Blob([csvContent], { type: 'text/csv' });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -319,3 +533,16 @@ document.addEventListener('DOMContentLoaded', () => {
         subtree: true
     });
 });
+
+// Sound effects
+const sounds = {
+    start: 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=',
+    pause: 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=',
+    lap: 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=',
+    reset: 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='
+};
+function playSound(type) {
+    if (!sounds[type]) return;
+    const audio = new Audio(sounds[type]);
+    audio.play();
+}

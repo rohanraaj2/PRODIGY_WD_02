@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="stopwatch">
+    <div class="stopwatch" role="region" aria-label="Stopwatch Application">
             <div class="header-row">
                 <h1>Stopwatch</h1>
                 <button id="darkModeToggle" class="btn" title="Toggle Dark Mode">🌙</button>
@@ -32,7 +32,7 @@
                 <input type="number" id="countdownInput" min="1" max="3599" placeholder="Seconds" style="display:none; width:100px; margin-left:10px;" />
             </div>
             <!-- Time Display -->
-            <div class="time-display">
+            <div class="time-display" aria-live="polite">
                 <span id="minutes">00</span>:
                 <span id="seconds">00</span>:
                 <span id="milliseconds">00</span>
@@ -40,7 +40,7 @@
             <!-- Animated Clock -->
             <div id="svgClockContainer"></div>
             <!-- Control Buttons -->
-            <div class="controls">
+            <div class="controls" role="group" aria-label="Stopwatch Controls">
                 <button id="startBtn" class="btn start">Start</button>
                 <button id="pauseBtn" class="btn pause" disabled>Pause</button>
                 <button id="resetBtn" class="btn reset">Reset</button>
@@ -48,7 +48,7 @@
                 <button id="shareBtn" class="btn" title="Share Lap Times" style="display:none;">Share</button>
             </div>
             <!-- Lap Times Section -->
-            <div class="lap-section">
+            <div class="lap-section" role="region" aria-label="Lap Times">
                 <h2>Lap Times</h2>
                 <div class="lap-container" id="lapContainer">
                     <p class="no-laps">No lap times recorded</p>
@@ -56,8 +56,15 @@
                 <button id="clearLapsBtn" class="btn clear-laps" style="display: none;">Clear All Laps</button>
             </div>
             <!-- Leaderboard Section -->
-            <div class="leaderboard-section" id="leaderboardSection" style="display:none;">
+            <div class="leaderboard-section" id="leaderboardSection" style="display:none;" role="region" aria-label="Leaderboard">
                 <h2>Leaderboard</h2>
+                <label for="leaderboardType">Show:</label>
+                <select id="leaderboardType">
+                    <option value="bestLaps">Best Lap Times</option>
+                    <option value="fastestSplits">Fastest Splits</option>
+                    <option value="mostLaps">Most Laps (Session)</option>
+                    <option value="historicalBests">Historical Bests</option>
+                </select>
                 <div id="leaderboardContainer"></div>
             </div>
         </div>
