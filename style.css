@@ -1,3 +1,19 @@
+/* Stylish countdown input */
+#countdownInput {
+    border: 2px solid #3498db;
+    border-radius: 25px;
+    padding: 10px 18px 10px 38px;
+    font-size: 1.2rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(52, 73, 94, 0.08);
+    background: #f8faff url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" stroke="%233498db" stroke-width="2"/><rect x="9" y="4" width="2" height="7" rx="1" fill="%233498db"/><rect x="10" y="10" width="5" height="2" rx="1" fill="%233498db"/></svg>') no-repeat 10px center;
+}
+#countdownInput:focus {
+    border-color: #2ecc71;
+    box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+    background-color: #eef9f2;
+}
 .customization-row {
     display: flex;
     align-items: center;
