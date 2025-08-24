@@ -411,7 +411,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const [lap, time, split] = line.split(',');
                     if (lap && time && split) {
                         stopwatch.lapCount++;
-                        stopwatch.addLapToDisplay(stopwatch.lapCount, time.replace(/"/g, ''), split.replace(/"/g, ''));
+                        // Remove 'Split: ' prefix if present
+                        let splitValue = split.replace(/"/g, '').replace(/^Split: /, '');
+                        stopwatch.addLapToDisplay(stopwatch.lapCount, time.replace(/"/g, ''), splitValue);
                     }
                 });
             };
