@@ -245,8 +245,7 @@ class Stopwatch {
         this.lapCount = 0;
         this.lapTimes = [];
         this.splitTimes = [];
-        // Save session laps to a separate key, but keep historical bests
-        localStorage.setItem('stopwatchSessionLaps', JSON.stringify([]));
+        this.saveLapsToStorage();
         this.clearLapsBtn.style.display = 'none';
         this.shareBtn.style.display = 'none';
     }
@@ -270,31 +269,15 @@ class Stopwatch {
         return lapTimes.reverse(); // Return in chronological order
     }
 
-    // Save laps to localStorage (session and historical bests)
+    // Save laps to localStorage
     saveLapsToStorage() {
         const laps = this.exportLapTimes();
-        // Save session laps
-        localStorage.setItem('stopwatchSessionLaps', JSON.stringify(laps));
-        // Update historical bests if needed
-        let bests = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
-        laps.forEach(lap => {
-            // If this lap is better than any previous, add it
-            if (!bests.some(b => b.time === lap.time)) {
-                bests.push(lap);
-            }
-        });
-        // Sort and keep top 20
-        bests = bests.sort((a, b) => {
-            const ta = parseLapTime(a.time);
-            const tb = parseLapTime(b.time);
-            return ta - tb;
-        }).slice(0, 20);
-        localStorage.setItem('stopwatchLaps', JSON.stringify(bests));
+        localStorage.setItem('stopwatchLaps', JSON.stringify(laps));
     }
 
-    // Load laps from localStorage (session only)
+    // Load laps from localStorage
     loadLapsFromStorage() {
-        const laps = JSON.parse(localStorage.getItem('stopwatchSessionLaps') || '[]');
+        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
         if (laps.length > 0) {
             this.lapCount = 0;
             laps.forEach(lap => {
@@ -333,101 +316,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.stopwatch = stopwatch;
 
 
-    // Leaderboard/history
-    const leaderboardSection = document.getElementById('leaderboardSection');
-    const leaderboardContainer = document.getElementById('leaderboardContainer');
-    const leaderboardType = document.getElementById('leaderboardType');
-
-    function getBestLaps(laps) {
-        return [...laps].sort((a, b) => {
-            const ta = parseLapTime(a.time);
-            const tb = parseLapTime(b.time);
-            return ta - tb;
-        }).slice(0, 10);
-    }
-    function getFastestSplits(laps) {
-        return [...laps].sort((a, b) => {
-            const sa = parseLapTime(a.split.replace('Split: ',''));
-            const sb = parseLapTime(b.split.replace('Split: ',''));
-            return sa - sb;
-        }).slice(0, 10);
-    }
-    function getMostLaps(laps) {
-        return [{ count: laps.length }];
-    }
-    function getHistoricalBests() {
-        // For demo: just show best lap from localStorage
-        const laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
-        if (laps.length === 0) return [];
-        return getBestLaps(laps).slice(0, 1);
-    }
-    function parseLapTime(str) {
-        // "mm:ss:ms"
-        const [m, s, ms] = str.split(':').map(Number);
-        return m * 60000 + s * 1000 + ms * 10;
-    }
-    function updateLeaderboard() {
-        let laps = [];
-        // For leaderboard, use historical bests except for mostLaps
-        if (leaderboardType.value === 'mostLaps') {
-            laps = JSON.parse(localStorage.getItem('stopwatchSessionLaps') || '[]');
-        } else {
-            laps = JSON.parse(localStorage.getItem('stopwatchLaps') || '[]');
-        }
-        if (laps.length === 0) {
-            leaderboardSection.style.display = 'none';
-            return;
-        }
-        leaderboardSection.style.display = 'block';
-        leaderboardContainer.innerHTML = '';
-        let entries = [];
-        switch (leaderboardType.value) {
-            case 'bestLaps':
-                entries = getBestLaps(laps);
-                entries.forEach((lap, idx) => {
-                    const entry = document.createElement('div');
-                    entry.className = 'leaderboard-entry';
-                    entry.innerHTML = `<span>#${idx + 1}</span> <span>${lap.time}</span> <span>${lap.split}</span>`;
-                    leaderboardContainer.appendChild(entry);
-                });
-                break;
-            case 'fastestSplits':
-                entries = getFastestSplits(laps);
-                entries.forEach((lap, idx) => {
-                    const entry = document.createElement('div');
-                    entry.className = 'leaderboard-entry';
-                    entry.innerHTML = `<span>#${idx + 1}</span> <span>${lap.split}</span> <span>${lap.time}</span>`;
-                    leaderboardContainer.appendChild(entry);
-                });
-                break;
-            case 'mostLaps':
-                entries = getMostLaps(laps);
-                entries.forEach(entryObj => {
-                    const entry = document.createElement('div');
-                    entry.className = 'leaderboard-entry';
-                    entry.innerHTML = `<span>Total Laps:</span> <span>${entryObj.count}</span>`;
-                    leaderboardContainer.appendChild(entry);
-                });
-                break;
-            case 'historicalBests':
-                entries = getHistoricalBests();
-                entries.forEach((lap, idx) => {
-                    const entry = document.createElement('div');
-                    entry.className = 'leaderboard-entry';
-                    entry.innerHTML = `<span>Best Lap:</span> <span>${lap.time}</span> <span>${lap.split}</span>`;
-                    leaderboardContainer.appendChild(entry);
-                });
-                break;
-        }
-    }
-    updateLeaderboard();
-    leaderboardType.addEventListener('change', updateLeaderboard);
-    // Update leaderboard on lap changes
-    const origSaveLaps = stopwatch.saveLapsToStorage.bind(stopwatch);
-    stopwatch.saveLapsToStorage = function() {
-        origSaveLaps();
-        updateLeaderboard();
-    };
 
     // Accessibility: Focus management
     document.querySelectorAll('button, select, input').forEach(el => {
