@@ -15,9 +15,61 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stopwatch - Web Application</title>
     <link rel="stylesheet" href="style.css">
+    <!-- html2canvas for screenshot sharing -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="container">
+        <!-- Help/Info Modal -->
+        <div id="helpModal" class="modal" tabindex="-1" aria-label="Help and Info" style="display:none;">
+            <div class="modal-content">
+                <span id="closeHelpModal" class="close">&times;</span>
+                <h2>Stopwatch Help & Features</h2>
+                <ul>
+                    <li>Keyboard Shortcuts: Space (Start/Pause), Ctrl+R (Reset), L (Lap)</li>
+                    <li>Modes: Stopwatch & Countdown</li>
+                    <li>Lap & Split Times, Export/Import CSV</li>
+                    <li>Theme Picker, Sound Effects, Accessibility</li>
+                    <li>Achievements for milestones</li>
+                    <li>Share screenshot of stopwatch</li>
+                </ul>
+            </div>
+        </div>
+        <!-- Achievements Section -->
+        <div id="achievements" class="achievements" aria-label="Achievements" style="display:none;"></div>
+        <!-- Import Lap Times -->
+        <input type="file" id="importLapFile" accept=".csv" style="display:none;" />
+        <button id="importLapBtn" class="btn" style="position: absolute; top: 60px; right: 20px; z-index: 10;">Import Laps</button>
+        <!-- Screenshot Share Button -->
+        <button id="screenshotBtn" class="btn" style="position: absolute; top: 100px; right: 20px; z-index: 10;">📸 Share Screenshot</button>
+        <!-- Help Button -->
+        <button id="openHelpBtn" class="btn" style="position: absolute; top: 140px; right: 20px; z-index: 10;">❓ Help</button>
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="settings-panel" aria-label="Settings" tabindex="0" style="display:none;">
+            <h2>Settings</h2>
+            <div>
+                <label for="themeSelect">Theme:</label>
+                <select id="themeSelect">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                    <option value="blue">Blue</option>
+                    <option value="green">Green</option>
+                </select>
+            </div>
+            <div>
+                <label for="soundToggle">Sound Effects:</label>
+                <input type="checkbox" id="soundToggle" checked>
+            </div>
+            <div>
+                <label for="timeFormatSelect">Time Format:</label>
+                <select id="timeFormatSelect">
+                    <option value="24">24h</option>
+                    <option value="12">12h</option>
+                </select>
+            </div>
+            <button id="closeSettingsBtn" class="btn">Close</button>
+        </div>
+        <button id="openSettingsBtn" class="btn" style="position: absolute; top: 20px; right: 20px; z-index: 10;">⚙️</button>
     <div class="stopwatch" role="region" aria-label="Stopwatch Application">
             <div class="header-row">
                 <h1>Stopwatch</h1>

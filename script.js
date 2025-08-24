@@ -361,8 +361,133 @@ class Stopwatch {
 
 // Initialize the stopwatch when the page loads
 document.addEventListener('DOMContentLoaded', () => {
+    // Ensure all elements exist before adding listeners
     const stopwatch = new Stopwatch();
     window.stopwatch = stopwatch;
+
+    // Help modal logic
+    const helpModal = document.getElementById('helpModal');
+    const openHelpBtn = document.getElementById('openHelpBtn');
+    const closeHelpModal = document.getElementById('closeHelpModal');
+    if (helpModal && openHelpBtn && closeHelpModal) {
+        openHelpBtn.addEventListener('click', () => { helpModal.style.display = 'flex'; });
+        closeHelpModal.addEventListener('click', () => { helpModal.style.display = 'none'; });
+        helpModal.addEventListener('click', e => { if (e.target === helpModal) helpModal.style.display = 'none'; });
+    }
+
+    // Achievements logic
+    const achievementsDiv = document.getElementById('achievements');
+    function showAchievement(text, emoji) {
+        if (!achievementsDiv) return;
+        achievementsDiv.innerHTML = `<span>${emoji}</span> <span>${text}</span>`;
+        achievementsDiv.style.display = 'flex';
+        setTimeout(() => { achievementsDiv.style.display = 'none'; }, 3000);
+    }
+    // Hook into lap logic
+    if (stopwatch) {
+        const origRecordLap = stopwatch.recordLap.bind(stopwatch);
+        stopwatch.recordLap = function() {
+            origRecordLap();
+            if (this.lapCount === 10) showAchievement('10 laps!', '🏅');
+            if (this.lapCount === 1) showAchievement('First lap!', '🎉');
+            if (this.lapCount === 50) showAchievement('50 laps!', '🥇');
+            if (this.elapsedTime >= 3600000) showAchievement('1 hour!', '⏰');
+        };
+    }
+
+    // Import lap times logic
+    const importLapBtn = document.getElementById('importLapBtn');
+    const importLapFile = document.getElementById('importLapFile');
+    if (importLapBtn && importLapFile) {
+        importLapBtn.addEventListener('click', () => importLapFile.click());
+        importLapFile.addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                const lines = evt.target.result.split('\n').slice(1); // skip header
+                stopwatch.clearLaps();
+                lines.forEach(line => {
+                    const [lap, time, split] = line.split(',');
+                    if (lap && time && split) {
+                        stopwatch.lapCount++;
+                        stopwatch.addLapToDisplay(stopwatch.lapCount, time.replace(/"/g, ''), split.replace(/"/g, ''));
+                    }
+                });
+            };
+            reader.readAsText(file);
+        });
+    }
+
+    // Screenshot sharing logic
+    const screenshotBtn = document.getElementById('screenshotBtn');
+    if (screenshotBtn && window.html2canvas) {
+        screenshotBtn.addEventListener('click', () => {
+            window.html2canvas(document.querySelector('.stopwatch')).then(canvas => {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'stopwatch_screenshot.png';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            });
+        });
+    }
+
+    // Settings panel logic
+    const openSettingsBtn = document.getElementById('openSettingsBtn');
+    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const themeSelect = document.getElementById('themeSelect');
+    const soundToggle = document.getElementById('soundToggle');
+    const timeFormatSelect = document.getElementById('timeFormatSelect');
+
+    openSettingsBtn.addEventListener('click', () => {
+        settingsPanel.style.display = 'block';
+        settingsPanel.focus();
+    });
+    closeSettingsBtn.addEventListener('click', () => {
+        settingsPanel.style.display = 'none';
+    });
+    settingsPanel.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') settingsPanel.style.display = 'none';
+    });
+
+    // Theme switching
+    function setTheme(theme) {
+        document.body.classList.remove('dark-mode', 'blue-theme', 'green-theme');
+        if (theme === 'dark') document.body.classList.add('dark-mode');
+        if (theme === 'blue') document.body.classList.add('blue-theme');
+        if (theme === 'green') document.body.classList.add('green-theme');
+        localStorage.setItem('theme', theme);
+    }
+    themeSelect.addEventListener('change', e => setTheme(e.target.value));
+    // Load theme from storage
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    themeSelect.value = savedTheme;
+    setTheme(savedTheme);
+
+    // Sound toggle
+    soundToggle.addEventListener('change', e => {
+        localStorage.setItem('soundEnabled', e.target.checked);
+    });
+    soundToggle.checked = localStorage.getItem('soundEnabled') !== 'false';
+
+    // Time format
+    timeFormatSelect.addEventListener('change', e => {
+        localStorage.setItem('timeFormat', e.target.value);
+    });
+    timeFormatSelect.value = localStorage.getItem('timeFormat') || '24';
+
+    // Override playSound to respect sound toggle
+    window.playSound = function(type) {
+        if (!soundToggle.checked) return;
+        if (!sounds[type]) return;
+        const audio = new Audio(sounds[type]);
+        audio.play();
+    };
 
 
 
