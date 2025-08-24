@@ -8,6 +8,12 @@
     transition: border-color 0.2s, box-shadow 0.2s;
     box-shadow: 0 2px 8px rgba(52, 73, 94, 0.08);
     background: #f8faff url('data:image/svg+xml;utf8,<svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" stroke="%233498db" stroke-width="2"/><rect x="9" y="4" width="2" height="7" rx="1" fill="%233498db"/><rect x="10" y="10" width="5" height="2" rx="1" fill="%233498db"/></svg>') no-repeat 10px center;
+    }
+    .dark-mode #countdownInput {
+        background: #232526;
+        color: #fafafa;
+        border-color: #fafafa;
+    }
 }
 #countdownInput:focus {
     border-color: #2ecc71;
@@ -42,7 +48,7 @@
     color: #2c3e50;
 }
 .dark-mode .customization-row label {
-    color: #f1f1f1;
+    color: #fafafa;
 }
 .leaderboard-section {
     margin-top: 30px;
@@ -65,7 +71,7 @@
 }
 .dark-mode .leaderboard-entry {
     background: #232526;
-    color: #f1f1f1;
+    color: #fafafa;
 }
 /* Reset and Base Styles */
 * {
@@ -120,7 +126,7 @@ body {
 }
 
 .dark-mode .stopwatch h1 {
-    color: #f1f1f1;
+    color: #fafafa;
 }
 
 /* Time Display */
@@ -164,7 +170,7 @@ body {
 }
 .dark-mode .leaderboard-section {
     background: rgba(52, 73, 94, 0.4);
-    color: #f1f1f1;
+    color: #fff;
 }
 
 .time-display span {
@@ -266,6 +272,10 @@ body {
     margin-bottom: 20px;
     font-size: 1.8rem;
     font-weight: 400;
+    }
+    .dark-mode .lap-section h2 {
+        color: #fafafa;
+    }
 }
 
 .lap-container {
@@ -302,12 +312,18 @@ body {
     color: #3498db;
     font-size: 1.1rem;
 }
+.dark-mode .lap-number {
+    color: #a3c9f7;
+}
 
 .lap-value {
     font-family: 'Courier New', monospace;
     font-size: 1.1rem;
     color: #2c3e50;
     font-weight: 500;
+}
+.dark-mode .lap-value {
+    color: #fafafa;
 }
 
 .no-laps {
@@ -374,8 +390,8 @@ body {
 }
 
 .lap-container::-webkit-scrollbar-thumb {
-    background: rgba(52, 73, 94, 0.5);
-    border-radius: 10px;
+    background: rgba(52, 73, 94, 0.4);
+    color: #fafafa;
 }
 
 .lap-container::-webkit-scrollbar-thumb:hover {
