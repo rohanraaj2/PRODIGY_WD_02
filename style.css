@@ -1,4 +1,27 @@
+    border: 2px solid #764ba2;
+    background: #fff;
+    color: #764ba2;
+    box-shadow: 0 2px 8px rgba(52, 73, 94, 0.08);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+body:not(.dark-mode) #darkModeToggle:hover {
+    background: #f8faff;
+    border-color: #3498db;
+    color: #3498db;
+}
 /* Stylish countdown input */
+#darkModeToggle {
+    border: 2px solid #764ba2;
+    background: #fff;
+    color: #764ba2;
+    box-shadow: 0 2px 8px rgba(52, 73, 94, 0.08);
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+body:not(.dark-mode) #darkModeToggle:hover {
+    background: #f8faff;
+    border-color: #3498db;
+    color: #3498db;
+}
 #countdownInput {
     border: 2px solid #3498db;
     border-radius: 25px;
