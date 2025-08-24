@@ -438,58 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Settings panel logic
-    const openSettingsBtn = document.getElementById('openSettingsBtn');
-    const closeSettingsBtn = document.getElementById('closeSettingsBtn');
-    const settingsPanel = document.getElementById('settingsPanel');
-    const themeSelect = document.getElementById('themeSelect');
-    const soundToggle = document.getElementById('soundToggle');
-    const timeFormatSelect = document.getElementById('timeFormatSelect');
-
-    openSettingsBtn.addEventListener('click', () => {
-        settingsPanel.style.display = 'block';
-        settingsPanel.focus();
-    });
-    closeSettingsBtn.addEventListener('click', () => {
-        settingsPanel.style.display = 'none';
-    });
-    settingsPanel.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') settingsPanel.style.display = 'none';
-    });
-
-    // Theme switching
-    function setTheme(theme) {
-        document.body.classList.remove('dark-mode', 'blue-theme', 'green-theme');
-        if (theme === 'dark') document.body.classList.add('dark-mode');
-        if (theme === 'blue') document.body.classList.add('blue-theme');
-        if (theme === 'green') document.body.classList.add('green-theme');
-        localStorage.setItem('theme', theme);
-    }
-    themeSelect.addEventListener('change', e => setTheme(e.target.value));
-    // Load theme from storage
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    themeSelect.value = savedTheme;
-    setTheme(savedTheme);
-
-    // Sound toggle
-    soundToggle.addEventListener('change', e => {
-        localStorage.setItem('soundEnabled', e.target.checked);
-    });
-    soundToggle.checked = localStorage.getItem('soundEnabled') !== 'false';
-
-    // Time format
-    timeFormatSelect.addEventListener('change', e => {
-        localStorage.setItem('timeFormat', e.target.value);
-    });
-    timeFormatSelect.value = localStorage.getItem('timeFormat') || '24';
-
-    // Override playSound to respect sound toggle
-    window.playSound = function(type) {
-        if (!soundToggle.checked) return;
-        if (!sounds[type]) return;
-        const audio = new Audio(sounds[type]);
-        audio.play();
-    };
 
 
 

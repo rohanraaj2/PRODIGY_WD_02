@@ -40,35 +40,9 @@
         <!-- Import Lap Times -->
         <input type="file" id="importLapFile" accept=".csv" style="display:none;" />
         <div style="position: absolute; top: 20px; right: 20px; z-index: 10; display: flex; flex-direction: column; gap: 16px; align-items: flex-end;">
-            <button id="openSettingsBtn" class="btn">⚙️</button>
             <button id="importLapBtn" class="btn">Import Laps</button>
             <button id="screenshotBtn" class="btn">📸 Share Screenshot</button>
             <button id="openHelpBtn" class="btn">❓ Help</button>
-        </div>
-        <!-- Settings Panel -->
-        <div id="settingsPanel" class="settings-panel" aria-label="Settings" tabindex="0" style="display:none;">
-            <h2>Settings</h2>
-            <div>
-                <label for="themeSelect">Theme:</label>
-                <select id="themeSelect">
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                    <option value="blue">Blue</option>
-                    <option value="green">Green</option>
-                </select>
-            </div>
-            <div>
-                <label for="soundToggle">Sound Effects:</label>
-                <input type="checkbox" id="soundToggle" checked>
-            </div>
-            <div>
-                <label for="timeFormatSelect">Time Format:</label>
-                <select id="timeFormatSelect">
-                    <option value="24">24h</option>
-                    <option value="12">12h</option>
-                </select>
-            </div>
-            <button id="closeSettingsBtn" class="btn">Close</button>
         </div>
     <div class="stopwatch" role="region" aria-label="Stopwatch Application">
             <div class="header-row">
