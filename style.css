@@ -13,6 +13,14 @@
         background: #232526;
         color: #fafafa;
         border-color: #fafafa;
+        caret-color: #fafafa;
+    }
+    .dark-mode #countdownInput:focus {
+        background: #232526;
+        color: #fafafa;
+        border-color: #2ecc71;
+        box-shadow: 0 0 0 3px rgba(46, 204, 113, 0.15);
+    }
     }
 }
 #countdownInput:focus {
