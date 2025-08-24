@@ -427,18 +427,19 @@ document.addEventListener('DOMContentLoaded', () => {
     downloadBtn.textContent = 'Download Lap Times';
     downloadBtn.className = 'btn clear-laps';
     downloadBtn.style.display = 'none';
-    downloadBtn.style.marginLeft = '10px';
     downloadBtn.onclick = downloadLapTimes;
-    
-    const clearLapsBtn = document.getElementById('clearLapsBtn');
-    clearLapsBtn.parentNode.insertBefore(downloadBtn, clearLapsBtn.nextSibling);
-    
+
+    const lapActions = document.querySelector('.lap-actions');
+    if (lapActions) {
+        lapActions.appendChild(downloadBtn);
+    }
+
     // Show download button when there are laps
     const observer = new MutationObserver(() => {
         const lapTimes = document.querySelectorAll('.lap-time');
         downloadBtn.style.display = lapTimes.length > 0 ? 'inline-block' : 'none';
     });
-    
+
     observer.observe(document.getElementById('lapContainer'), {
         childList: true,
         subtree: true
