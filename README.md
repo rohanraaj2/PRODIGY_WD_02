@@ -4,7 +4,7 @@ A feature-rich, responsive stopwatch web application built with HTML, CSS, and J
 
 ## Live Demo
 
-View the site: https://rohanraaj2.github.io/PRODIGY_WD_02/
+View the site: https://rohanraaj2.github.io/Stopwatch/
 
 ## Features
 
